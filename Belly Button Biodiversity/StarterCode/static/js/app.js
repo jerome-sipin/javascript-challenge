@@ -52,9 +52,6 @@ d3.json("samples.json").then(function(data){
         var layout = {
             height: 600,
             width: 800,
-            xaxis:{
-                categoryorder: "category ascending"
-            }
         };
 
         Plotly.newPlot("bar", data2, layout);
@@ -62,8 +59,50 @@ d3.json("samples.json").then(function(data){
         console.log(data2);
     }
 
+    // Listen to change on dropdown menu, execute the function getData on list change
+    d3.selectAll("#selDataset").on("change", getData);
 
+    // Define getData 
+    function getData(){
+        // On change of dropdown menu, get the 'value' (index) of the selected element
+        var dropdownMenu = d3.select("#selDataset");
+        var dataset = dropdownMenu.property("value");
 
+        // Find entry in sample that matches the value (index) entered by the user
+        var newSample = samples[dataset];
+        console.log(newSample)
+
+        // Next few lines are re-use of initial code, but with different variable names
+        var SampleValues = Object.values(newSample.sample_values);
+        var OtuID = Object.values(newSample.otu_ids);
+        let OtuID2 = OtuID.map(function(id){
+            return `OTU ${id}`
+        })
+
+        // Sort sample values, then use index to sort the
+        // id column
+        Samp10 = SampleValues.sort(function(a,b){
+            return b - a;
+        })
+
+        OtuID10 = OtuID2.sort(function(a,b){
+            return Samp10.indexOf(a) - Samp10.indexOf(b);
+        })
+
+        // Slice arrays to use only first 10 values.
+
+        Samp10 = SampleValues.slice(0,10);
+        OtuID10 = OtuID2.slice(0,10);
+
+        // Define new arrays for the new data, then use .restyle to apply new data on the page
+        x = Samp10;
+        y = OtuID10;
+
+        Plotly.restyle("bar", "x", [x])
+        Plotly.restyle("bar", "y", [y])
+    }
+
+   
 
 
 
